@@ -6,112 +6,148 @@ import io
 import time
 
 # --- 1. НАСТРОЙКА СТРАНИЦЫ ---
-st.set_page_config(page_title="My Super App", layout="centered", page_icon="📱")
+st.set_page_config(page_title="VibeOS", layout="centered", page_icon="⚡")
 
-# --- 2. УПРАВЛЕНИЕ СОСТОЯНИЕМ (Навигация) ---
-# Мы используем "Session State", чтобы помнить, на какой странице мы находимся
+# --- 2. STATE MANAGEMENT ---
 if 'page' not in st.session_state:
     st.session_state.page = 'home'
 
-def navigate_to(page_name):
-    st.session_state.page = page_name
+def navigate_to(page):
+    st.session_state.page = page
     st.rerun()
 
-# --- 3. CSS МАГИЯ (Визуал + Скрытие логотипов) ---
+# --- 3. CSS (СТИЛЬ REACT BITS) ---
 st.markdown("""
     <style>
-    /* 1. Скрываем все логотипы Streamlit и GitHub */
+    /* Убираем лишнее */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* 2. Фон приложения (Градиент) */
+    /* ФОН: Глубокий космос + Сетка */
     .stApp {
-        background: linear-gradient(135deg, #1e1e2f 0%, #2a2a40 100%);
-        color: white;
+        background-color: #0e0e12;
+        background-image: radial-gradient(at 50% 0%, #2b2b45 0px, transparent 50%),
+                          radial-gradient(at 100% 0%, #3a1c71 0px, transparent 50%);
+        color: #e0e0e0;
     }
 
-    /* 3. Стиль кнопок (Плитки меню) */
-    div.stButton > button {
-        width: 100%;
-        height: 100px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 15px;
-        color: white;
-        font-size: 20px;
-        font-weight: bold;
-        transition: all 0.3s ease;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    
-    /* Эффект при наведении */
-    div.stButton > button:hover {
-        background: rgba(255, 255, 255, 0.15);
-        transform: translateY(-2px);
-        border-color: #00d4ff;
-        box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
-    }
-
-    /* 4. Заголовки */
+    /* ЗАГОЛОВОК: Градиентный текст */
     h1 {
-        font-family: 'Helvetica Neue', sans-serif;
-        background: -webkit-linear-gradient(45deg, #00d4ff, #ff007f);
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        font-weight: 800;
+        letter-spacing: -1px;
         text-align: center;
-        margin-bottom: 30px;
+        padding-bottom: 20px;
     }
     
-    /* 5. Инпуты и поля */
-    .stTextInput > div > div > input {
-        background-color: rgba(255, 255, 255, 0.05);
+    h2, h3 {
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    /* КНОПКИ-КАРТОЧКИ (Главная фишка) */
+    div.stButton > button {
+        width: 100%;
+        height: 120px; /* Высокие карточки */
+        background: rgba(255, 255, 255, 0.03); /* Почти прозрачные */
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px; /* Сильное скругление */
+        color: #e0e0e0;
+        font-size: 18px;
+        font-weight: 500;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Пружинистая анимация */
+        backdrop-filter: blur(10px);
+    }
+    
+    /* Эффект при наведении (Glow Effect) */
+    div.stButton > button:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: #00C9FF;
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 10px 30px -10px rgba(0, 201, 255, 0.4);
         color: white;
+    }
+    
+    /* Инпуты (поля ввода) */
+    .stTextInput > div > div > input {
+        background-color: #1a1a20;
+        color: white;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 10px;
+    }
+    
+    /* Табы */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 10px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        background-color: rgba(255,255,255,0.05);
         border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        border: none;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #00C9FF !important;
+        color: black !important;
+        font-weight: bold;
+    }
+    
+    /* Линии разделители */
+    hr {
+        border-color: rgba(255,255,255,0.1);
     }
     </style>
 """, unsafe_allow_html=True)
 
-# --- 4. ФУНКЦИИ СТРАНИЦ ---
+# --- 4. ЭКРАНЫ ---
 
 def show_home():
-    st.title("MY OS 2.0")
-    st.write("👋 Привет, Вайбкодер!")
+    st.title("VIBE OS")
+    st.markdown("<p style='text-align: center; color: #888; margin-bottom: 40px;'>Твой личный цифровой хаб</p>", unsafe_allow_html=True)
     
-    # Сетка кнопок 2x2
+    # Сетка
     col1, col2 = st.columns(2)
     
     with col1:
-        if st.button("⬛ QR Код"):
+        st.write("") # отступ
+        if st.button("⬛\nQR Code"):
             navigate_to('qr')
-        if st.button("🎵 Музыка"):
+        st.write("") 
+        if st.button("🎵\nMusic Vibe"):
             navigate_to('music')
             
     with col2:
-        if st.button("🌍 Перевод"):
+        st.write("") 
+        if st.button("🌍\nTranslate"):
             navigate_to('translate')
-        if st.button("🤖 AI Чат"):
+        st.write("") 
+        if st.button("🤖\nAI Core"):
             navigate_to('ai')
 
 def show_qr():
-    if st.button("⬅ Назад"):
+    if st.button("← Back", key="back"):
         navigate_to('home')
         
-    st.header("Генератор QR")
+    st.title("QR Generator")
     
-    tab1, tab2 = st.tabs(["Ссылка", "Wi-Fi"])
+    tab1, tab2 = st.tabs(["🔗 Ссылка", "📶 Wi-Fi"])
     
     with tab1:
-        url = st.text_input("Вставь ссылку", "https://t.me/...")
-        if st.button("Создать QR", key="btn_url"):
+        st.write("Создай QR для любой ссылки или текста")
+        url = st.text_input("Вставь ссылку", "https://instagram.com")
+        if st.button("Сгенерировать QR", key="btn_url"):
             generate_qr(url)
             
     with tab2:
-        ssid = st.text_input("Имя сети (Wi-Fi)")
+        st.write("Поделись Wi-Fi без пароля")
+        ssid = st.text_input("Имя сети (SSID)")
         password = st.text_input("Пароль", type="password")
-        if st.button("Создать QR Wi-Fi", key="btn_wifi"):
+        if st.button("Сгенерировать Wi-Fi QR", key="btn_wifi"):
             data = f"WIFI:S:{ssid};T:WPA;P:{password};;"
             generate_qr(data)
 
@@ -119,48 +155,64 @@ def generate_qr(data):
     qr = qrcode.QRCode(version=1, box_size=10, border=2)
     qr.add_data(data)
     qr.make(fit=True)
-    img = qr.make_image(fill_color="black", back_color="white")
+    img = qr.make_image(fill_color="#000000", back_color="#ffffff")
     
-    # Конвертация
     buf = io.BytesIO()
     img.save(buf, format="PNG")
     byte_im = buf.getvalue()
     
-    st.image(byte_im, width=250)
-    st.download_button("Скачать", data=byte_im, file_name="qr.png", mime="image/png")
+    st.image(byte_im, width=300)
+    st.download_button("Скачать PNG", data=byte_im, file_name="qr_vibe.png", mime="image/png")
 
 def show_translate():
-    if st.button("⬅ Назад"):
+    if st.button("← Back"):
         navigate_to('home')
     
-    st.header("Переводчик")
-    text = st.text_area("Введите текст")
-    lang = st.selectbox("На язык:", ["ru", "kk", "en", "tr", "es", "fr"])
+    st.title("Neural Translate")
+    text = st.text_area("Что переводим?", height=150)
     
-    if st.button("Перевести 🚀"):
-        try:
-            res = GoogleTranslator(source='auto', target=lang).translate(text)
-            st.success(res)
-        except Exception as e:
-            st.error("Ошибка сети")
+    col1, col2 = st.columns(2)
+    with col1:
+        lang = st.selectbox("Язык", ["ru", "kk", "en", "tr", "ja", "de"])
+    with col2:
+        if st.button("Translate ⚡"):
+            try:
+                res = GoogleTranslator(source='auto', target=lang).translate(text)
+                st.success(res)
+            except:
+                st.error("Ошибка соединения")
 
 def show_music():
-    if st.button("⬅ Назад"):
+    if st.button("← Back"):
         navigate_to('home')
-    st.header("Плеер")
-    st.info("Пока работает только загрузка файла")
-    fl = st.file_uploader("MP3", type=["mp3"])
+    st.title("Music Lab")
+    
+    # Визуальный обман (фейковый плеер)
+    st.markdown("""
+        <div style="background: #1a1a20; padding: 20px; border-radius: 20px; text-align: center; border: 1px solid #333;">
+            <h3 style="margin:0">Vibe FM</h3>
+            <p style="color: #666;">Waiting for track...</p>
+        </div>
+        <br>
+    """, unsafe_allow_html=True)
+    
+    fl = st.file_uploader("Загрузи MP3", type=["mp3"])
     if fl:
         st.audio(fl)
 
 def show_ai():
-    if st.button("⬅ Назад"):
+    if st.button("← Back"):
         navigate_to('home')
-    st.header("AI Помощник")
-    st.write("Скоро здесь будет мощь OpenAI...")
-    st.text_input("Спроси что-нибудь...")
+    st.title("AI Core")
+    
+    st.markdown("""
+        <div style="padding: 20px; background: rgba(0, 201, 255, 0.1); border-radius: 15px; border-left: 5px solid #00C9FF;">
+            Система ожидает подключения API OpenAI. <br>
+            <b>Status:</b> Offline
+        </div>
+    """, unsafe_allow_html=True)
 
-# --- 5. ГЛАВНЫЙ РОУТЕР (Переключатель) ---
+# --- 5. ЗАПУСК ---
 if st.session_state.page == 'home':
     show_home()
 elif st.session_state.page == 'qr':
